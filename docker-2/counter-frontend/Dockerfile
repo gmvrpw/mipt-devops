@@ -15,7 +15,7 @@ FROM node:22
 
 WORKDIR /app
 COPY --from=0 /counter-frontend/.next/standalone /app
-COPY --from=0 /counter-frontend/.next/static /app/static
+COPY --from=0 /counter-frontend/.next/static /app/.next/static
 COPY --from=0 /counter-frontend/public /counter-frontend/public
 
 ENV PORT="3000"
