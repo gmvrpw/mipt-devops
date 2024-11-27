@@ -9,24 +9,13 @@ services:
     environment:
       PORT: ${FRONTEND_PORT}
 
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certs:/etc/letsencrypt
-    command: certonly --standalone --email dev@gmvr.pw --agree-tos --no-eff-email --dry-run --cert-name ${DOMAIN} -w /etc/letsencrypt -d ${DOMAIN} 
-
   nginx:
     build: ./nginx
     volumes:
-      - certs:/etc/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt
     environment:
       DOMAIN: ${DOMAIN}
       FRONTEND_PORT: ${FRONTEND_PORT}
       BACKEND_PORT: ${BACKEND_PORT}
     ports:
       - ${PORT}:80
-
-
-volumes:
-  certs:
-    name: "certs"
