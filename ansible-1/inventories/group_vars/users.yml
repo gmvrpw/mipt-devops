@@ -1,0 +1,3 @@
+user: your_user 
+group: your_group
+pub_key: "your_ssh_pubkey"
