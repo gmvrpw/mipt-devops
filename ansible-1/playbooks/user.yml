@@ -1,0 +1,58 @@
+- name: User Configuration
+  hosts: vm1
+  become: true
+  tasks:
+    - name: "Add group"
+      ansible.builtin.group:
+        name: "{{ group }}"
+        state: present
+
+    - name: "Set non-password access to sudo"
+      community.general.sudoers:
+        name: "{{ group }}"
+        group: "{{ group }}"
+        nopassword: true
+        commands: ALL
+        state: present
+        validation: required
+        
+    - name: "Add user"
+      ansible.builtin.user:
+        name: "{{ user }}"
+        append: true
+        create_home: true
+        groups:
+          - "{{ group }}"
+        state: present
+
+    - name: "Setup ssh (authorized_keys)"
+      ansible.posix.authorized_key:
+        key: "{{ pub_key }}"
+        user: "{{ user }}"
+        state: present
+
+    - name: "Disable root login"
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: "PermitRootLogin no"
+        state: present
+        backup: yes
+      notify:
+        - "Restart SSH"
+
+    - name: "Turn on firewall"
+      community.general.ufw:
+        state: enabled
+        policy: deny
+
+    - name: "Allow OpenSSH"
+      community.general.ufw:
+        rule: "limit"
+        name: "OpenSSH"
+
+  handlers:
+    - name: "Restart SSH"
+      ansible.builtin.systemd_service:
+        name: "sshd"
+        state: "restarted"
