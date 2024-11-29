@@ -1,0 +1,45 @@
+- name: Configure NGINX 
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/nginx.conf"
+    mode: 644
+    owner: root
+    group: root
+    force: true
+  notify: Reload NGINX
+
+- name: Ensure dhparam dir exist
+  ansible.builtin.file:
+    path: "{{ __ssl_dhparam_path }}"
+    state: directory
+
+- name: Copy dhparam 
+  ansible.builtin.copy:
+    content: "{{ __ssl_dhparam }}"
+    dest: "{{ __ssl_dhparam_path }}/dhparam.pem"
+    force: true
+
+- name: Ensure ssl dir exist
+  ansible.builtin.file:
+    path: "{{ __ssl_keys_path }}"
+    state: directory
+
+- name: Copy SSL keys
+  ansible.builtin.include_tasks:
+    file: copy_keys.yml
+  loop: "{{ nginx__servers }}"
+
+- name: Ensure conf dir exist
+  ansible.builtin.file:
+    path: "{{ nginx__servers_path }}"
+    state: directory
+
+- name: Configure Servers 
+  ansible.builtin.template:
+    src: server.conf.j2
+    dest: "{{ nginx__servers_path }}/{{ item.name }}.conf"
+    mode: 644
+    owner: root
+    group: root
+  loop: "{{ nginx__servers }}"
+  notify: Reload NGINX

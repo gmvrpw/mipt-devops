@@ -1,0 +1,28 @@
+- name: "Copy crt"
+  ansible.builtin.copy:
+    content: "{{ item.tls.crt }}"
+    dest: "{{ '{}/{}.crt'.format(__ssl_keys_path, item.name) }}"
+    force: true
+  when:
+    - item.tls is defined and item.tls.enabled
+  no_log: true
+
+- name: "Copy key"
+  ansible.builtin.copy:
+    content: "{{ item.tls.key }}"
+    dest: "{{ '{}/{}.key'.format(__ssl_keys_path, item.name) }}"
+    force: true
+  when:
+    - item.tls is defined and item.tls.enabled
+  no_log: true
+
+- name: "Copy csr"
+  ansible.builtin.copy:
+    content: "{{ item.tls.csr }}"
+    dest: "{{ '{}/{}.csr'.format(__ssl_keys_path, item.name) }}"
+    force: true
+  when:
+    - item.tls is defined and item.tls.enabled
+  no_log: true
+  
+  

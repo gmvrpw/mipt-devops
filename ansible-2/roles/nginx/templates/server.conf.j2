@@ -1,0 +1,44 @@
+{{ ansible_managed | comment }}
+
+{% if item.tls is defined and item.tls.enabled and item.tls.insecure_port %}
+server {
+  server_name {{ item.name }};
+
+  listen {{ item.tls.insecure_port | default(80) }};
+  return 301 https://$host$request_uri;
+}
+{% endif %}
+
+server {
+  server_name {{ item.name }};
+  add_header Access-Control-Allow-Origin *;
+
+{% if item.tls is defined and item.tls.enabled %}
+  listen {{ item.port | default(443) }} ssl http2;
+
+  ssl_certificate {{ '{}/{}.crt'.format(__ssl_keys_path, item.name) }};
+  ssl_certificate_key {{ '{}/{}.key'.format(__ssl_keys_path, item.name) }};
+  ssl_trusted_certificate {{ '{}/{}.csr'.format(__ssl_keys_path, item.name) }};
+  ssl_dhparam {{ __ssl_dhparam_path }}/dhparam.pem;
+
+  ssl_session_timeout 1d;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_tickets off;
+
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+  ssl_prefer_server_ciphers off;
+
+  add_header Strict-Transport-Security "max-age=63072000" always;
+{% else %}
+  listen {{ item.port | default(80) }};
+{% endif %}
+
+{% for pattern, options in item.locations.items() %}
+  location {{ pattern }} {
+{% for opt in options %}
+    {{ opt }};    
+{% endfor %}
+  }
+{% endfor %}
+}

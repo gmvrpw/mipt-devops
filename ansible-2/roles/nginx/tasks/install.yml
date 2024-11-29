@@ -1,0 +1,16 @@
+- name: Install NGINX (apt)
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+  when:
+    - ansible_pkg_mgr == "apt"
+  notify: Start NGINX
+
+# RHEL support
+- name: Install NGINX (dnf)
+  ansible.builtin.dnf:
+    name: nginx
+    state: present
+  when:
+    - ansible_pkg_mgr == "dnf"
+  notify: Start NGINX

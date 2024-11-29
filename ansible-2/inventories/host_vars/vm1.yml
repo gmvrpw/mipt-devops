@@ -1,0 +1,20 @@
+ansible_host: 10.2.1.5
+
+__ssl_dhparam: |
+  <dhparam here>
+
+nginx__servers:
+  - name: "google.com"
+    port: 10105 
+    locations:
+      "/":
+        - proxy_pass https://google.com
+    tls:
+      enabled: true
+      insecure_port: 80
+      crt: |
+        <Cert here>
+      key: |
+        <Cert key here>
+      csr: |
+        <Trust Cert here>
