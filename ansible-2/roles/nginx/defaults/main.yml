@@ -1,0 +1,22 @@
+---
+# ssl keys dir path
+__ssl_keys_path: "/etc/ssl/keys"
+
+# ssl dhparam dir path
+__ssl_dhparam_path: "/etc/ssl/nginx"
+__ssl_dhparam: "dhparam"
+
+nginx__servers_path: "/etc/nginx/conf.d"
+nginx__servers:
+  - name: "google.com"
+    port: 443 
+    locations:
+      "/":
+        - proxy_pass https://google.com
+    tls:
+      enabled: true
+      insecure_port: 80
+      crt: "crt"
+      key: "key"
+      csr: "csr"
+

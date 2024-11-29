@@ -1,0 +1,5 @@
+- name: Nginx
+  hosts: vm1
+  become: true
+  roles:
+    - ../roles/nginx
