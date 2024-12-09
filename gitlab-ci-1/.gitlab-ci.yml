@@ -1,0 +1,45 @@
+stages:
+  - build
+  - test
+  - deploy
+
+Build Server:
+  stage: build
+  image: sunpeek/poetry:py3.11-slim
+  script:
+    - mkdir -p dist
+    - poetry export --without-hashes --format constraints.txt --output dist/constraints.txt
+    - poetry run python -m pip wheel --isolated --requirement dist/constraints.txt --wheel-dir dist/vendor
+    - poetry build --format wheel
+    - tar cf server.tar.gz -z dist/counter_backend-*.whl dist/vendor/*
+  artifacts:
+    paths:
+      - server.tar.gz
+    public: false
+    when: on_success
+
+Test Server:
+  stage: test
+  image: sunpeek/poetry:py3.11-slim
+  script:
+    - tar xf server.tar.gz -z
+    - python -m pip install --isolated --no-index --no-color --no-cache-dir --disable-pip-version-check --no-python-version-warning --no-warn-script-location --no-deps --progress-bar off dist/vendor/*.whl dist/counter_backend-*.whl
+    - python -m counter_backend &
+    - python -m pytest tests
+
+
+Deploy Server:
+  stage: deploy
+  image: ubuntu:latest
+  variables:
+    DEPLOY_USER: deployer
+    DEPLOY_HOST: 10.2.1.5
+    DEPLOY_LOCATION: ~/
+  script:
+    - apt update -y && apt install -y openssh-client
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp $SSH_PRIVATE_KEY ~/.ssh/id_rsa && chmod 0600 ~/.ssh/id_rsa
+    - cp $SSH_PROXY_PRIVATE_KEY ~/.ssh/proxy_id_rsa && chmod 0600 ~/.ssh/proxy_id_rsa
+    - cp $SSH_CONFIG ~/.ssh/config && chmod 0600 ~/.ssh/config
+    - scp server.tar.gz $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_LOCATION
