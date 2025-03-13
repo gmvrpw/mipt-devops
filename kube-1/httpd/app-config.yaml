@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: httpd-conf
+data:
+  APP_NAME: boiarnikov-a-hw3-app
+  APP_ENV: production
