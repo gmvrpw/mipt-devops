@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  namespace: boiarnikov-a-hw3
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        ports:
+        - containerPort: 6379
+        env:
+        - name: REDIS_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: redis-conf 
+              key: REDIS_MODE
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets
+              key: REDIS_PASSWORD
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
