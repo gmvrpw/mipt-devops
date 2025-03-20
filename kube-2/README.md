@@ -15,11 +15,9 @@ $ psql --username "admin"
 admin=# CREATE DATABASE mipt_devops;
 admin=# \c mipt_devops;
 You are now connected to database "mipt_devops" as user "admin".
-admin=# use mipt_devops;
 mipt_devops=# CREATE TABLE test (test_id bigserial primary key, test_name varchar(20) NOT NULL);
 mipt_devops=# INSERT INTO test (test_name) VALUES ('a');
-mipt_devops=# SELECT * from test
-mipt_devops-# ;
+mipt_devops=# SELECT * from test;
  test_id | test_name 
 ---------+-----------
        1 | a
@@ -35,8 +33,7 @@ deployment.apps/postgres-app scaled
 ```bash
 $ kubectl -n boiarnikov-a-hw4 exec postgres-app-$pod --stdin --tty shell-demo -- /bin/bash
 $ psql --username "admin" --dbname "mipt_devops"
-mipt_devops=# SELECT * from test
-mipt_devops-# ;
+mipt_devops=# SELECT * from test;
  test_id | test_name 
 ---------+-----------
        1 | a
