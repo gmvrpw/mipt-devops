@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-app
+  namespace: boiarnikov-a-hw4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-app
+  template:
+    metadata:
+      labels:
+        app: postgres-app
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:latest
+        env:
+        - name: PGDATA 
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-conf 
+              key: PGDATA 
+        - name: POSTGRES_PASSWORD 
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_USER 
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_USER
+        volumeMounts:
+        - name: postgres-data 
+          mountPath: /mnt/postgres
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-nfs-pvc
