@@ -1,0 +1,14 @@
+.DS_Store
+.project
+.idea/
+*.tmproj
+.vscode/
+
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+
