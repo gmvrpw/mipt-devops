@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: letsencrypt-cert
+spec:
+  secretName: tls-cert-le
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+  commonName: boiarnikov-a-hw7.mfti.devops-teta.ru
+  dnsNames:
+    - boiarnikov-a-hw7.mfti.devops-teta.ru
